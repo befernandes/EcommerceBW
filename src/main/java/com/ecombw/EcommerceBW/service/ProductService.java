@@ -50,4 +50,27 @@ public class ProductService {
         return productRepository.findById(id).map(this::productDTO);
     }
 
+    public ProductDTO update(Long id, ProductDTO productDTO) {
+        // Verifica se o produto existe antes de atualizar
+        return productRepository.findById(id).map(existingProduct -> {
+            // Atualiza os campos da entidade existente com os dados do DTO
+            existingProduct.setName(productDTO.getName());
+            existingProduct.setDescription(productDTO.getDescription());
+            existingProduct.setPrice(productDTO.getPrice());
+            existingProduct.setStockQuantity(productDTO.getStockQuantity());
+            existingProduct.setImageUrl(productDTO.getImageUrl());
+
+            Product updatedEntity = productRepository.save(existingProduct); // Salva as alterações
+            return productDTO(updatedEntity); // Retorna o DTO atualizado
+        }).orElseThrow(() -> new RuntimeException("Product not found with id " + id)); // Ou outra exceção mais específica
+    }
+    public void deleteById(Long id) {
+        if (productRepository.findById(id).isPresent()) {
+            productRepository.deleteById(id);
+        }else  {
+            throw new RuntimeException("Product not found with id " + id);
+        }
+    }
+
+
 }
